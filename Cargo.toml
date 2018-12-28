@@ -1,0 +1,8 @@
+[package]
+name = "rustymon"
+version = "0.1.0"
+authors = ["Adrien Bennadji <adrien.bennadji@prestataires.boulanger.com>"]
+edition = "2018"
+
+[dependencies]
+amethyst = "0.10.0"

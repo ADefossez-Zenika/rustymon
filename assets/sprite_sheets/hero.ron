@@ -1,10 +1,129 @@
 (
-    spritesheet_width: 32,
-    spritesheet_height: 32,
+    spritesheet_width: 128,
+    spritesheet_height: 160,
     sprites: [
+        // idle sprites
         (
             x: 0,
             y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 32,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 64,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 96,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        // move right sprite
+        (
+            x: 0,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 32,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 64,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 96,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        // move left sprite
+        (
+            x: 0,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 32,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 64,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 96,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        // move up sprite
+        (
+            x: 0,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 32,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 64,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 96,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        // move down sprite
+        (
+            x: 0,
+            y: 128,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 32,
+            y: 128,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 64,
+            y: 128,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 96,
+            y: 128,
             width: 32,
             height: 32,
         ),

@@ -1,7 +1,7 @@
 [package]
 name = "rustymon"
 version = "0.1.0"
-authors = ["Adrien Bennadji <adrien.bennadji@prestataires.boulanger.com>"]
+authors = ["Adrien Bennadji <adrien.bennadji@live.fr>"]
 edition = "2018"
 
 [dependencies]

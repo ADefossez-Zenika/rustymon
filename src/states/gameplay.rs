@@ -1,5 +1,6 @@
-use crate::{animations::build_animation_control_set, assets};
+use crate::{animations::*, assets};
 use amethyst::{
+    assets::*,
     core::transform::Transform,
     ecs::prelude::*,
     renderer::{Camera, DisplayConfig, Projection, SpriteRender},
@@ -8,11 +9,30 @@ use amethyst::{
 
 pub struct GameplayState {
     display_config: DisplayConfig,
+    idle_animation_handle: Handle<SpriteAnimation>,
+    go_right_animation_handle: Handle<SpriteAnimation>,
+    go_left_animation_handle: Handle<SpriteAnimation>,
+    go_forward_animation_handle: Handle<SpriteAnimation>,
+    go_backward_animation_handle: Handle<SpriteAnimation>,
 }
 
 impl GameplayState {
-    pub fn new(display_config: DisplayConfig) -> Self {
-        GameplayState { display_config }
+    pub fn new(
+        display_config: DisplayConfig,
+        idle_animation_handle: Handle<SpriteAnimation>,
+        go_right_animation_handle: Handle<SpriteAnimation>,
+        go_left_animation_handle: Handle<SpriteAnimation>,
+        go_forward_animation_handle: Handle<SpriteAnimation>,
+        go_backward_animation_handle: Handle<SpriteAnimation>,
+    ) -> Self {
+        GameplayState {
+            display_config,
+            idle_animation_handle,
+            go_right_animation_handle,
+            go_left_animation_handle,
+            go_forward_animation_handle,
+            go_backward_animation_handle,
+        }
     }
 }
 
@@ -40,8 +60,14 @@ impl GameplayState {
     fn init_hero(&mut self, world: &mut World) {
         let texture = assets::load_texture("sprite_sheets/hero.png", world);
         let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
-
-        let control_set = build_animation_control_set(world);
+        let control_set = build_animation_control_set(
+            world,
+            self.idle_animation_handle.clone(),
+            self.go_right_animation_handle.clone(),
+            self.go_left_animation_handle.clone(),
+            self.go_forward_animation_handle.clone(),
+            self.go_backward_animation_handle.clone(),
+        );
 
         world
             .create_entity()

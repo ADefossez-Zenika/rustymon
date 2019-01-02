@@ -4,11 +4,12 @@ mod bundle;
 mod states;
 mod systems;
 
-use crate::{bundle::RustymonBundle, states::GameplayState};
+use crate::{bundle::RustymonBundle, states::LoadingState, animations::HeroAnimationId};
 
 use amethyst::{
     animation::AnimationBundle,
     core::transform::TransformBundle,
+    input::InputBundle,
     prelude::*,
     renderer::{
         ColorMask, DisplayConfig, DrawFlat2D, Pipeline, RenderBundle, SpriteRender, Stage, ALPHA,
@@ -27,16 +28,19 @@ fn main() -> amethyst::Result<()> {
     );
 
     let game_data = GameDataBuilder::default()
-        .with_bundle(RustymonBundle)?
+        .with_bundle(
+            InputBundle::<String, String>::new().with_bindings_from_file("configs/bindings.ron")?,
+        )?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(AnimationBundle::<u32, SpriteRender>::new(
+        .with_bundle(AnimationBundle::<HeroAnimationId, SpriteRender>::new(
             "control", "sampler",
         ))?
         .with_bundle(
             RenderBundle::new(pipe, Some(display_config.clone())).with_sprite_sheet_processor(),
-        )?;
+        )?
+        .with_bundle(RustymonBundle)?;
     let mut game =
-        Application::build("assets/", GameplayState::new(display_config))?.build(game_data)?;
+        Application::build("assets/", LoadingState::new(display_config))?.build(game_data)?;
     game.run();
     Ok(())
 }

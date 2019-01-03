@@ -1,10 +1,11 @@
 mod animations;
 mod assets;
 mod bundle;
+mod components;
 mod states;
 mod systems;
 
-use crate::{bundle::RustymonBundle, states::LoadingState, animations::HeroAnimationId};
+use crate::{animations::HeroAnimationId, bundle::RustymonBundle, states::LoadingState};
 
 use amethyst::{
     animation::AnimationBundle,
@@ -28,10 +29,10 @@ fn main() -> amethyst::Result<()> {
     );
 
     let game_data = GameDataBuilder::default()
+        .with_bundle(TransformBundle::new())?
         .with_bundle(
             InputBundle::<String, String>::new().with_bindings_from_file("configs/bindings.ron")?,
         )?
-        .with_bundle(TransformBundle::new())?
         .with_bundle(AnimationBundle::<HeroAnimationId, SpriteRender>::new(
             "control", "sampler",
         ))?
@@ -39,6 +40,7 @@ fn main() -> amethyst::Result<()> {
             RenderBundle::new(pipe, Some(display_config.clone())).with_sprite_sheet_processor(),
         )?
         .with_bundle(RustymonBundle)?;
+
     let mut game =
         Application::build("assets/", LoadingState::new(display_config))?.build(game_data)?;
     game.run();

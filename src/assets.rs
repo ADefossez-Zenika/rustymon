@@ -55,6 +55,7 @@ where
     )
 }
 
+/// Load a sprite render animation from a loaded sprite animation.
 pub fn load_sprite_render_animation(
     world: &World,
     sprite_animation_handle: Handle<SpriteAnimation>,

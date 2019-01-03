@@ -1,6 +1,7 @@
-use crate::{animations::*, assets};
+use crate::{animations::*, assets, components::HeroAnimation};
 use amethyst::{
-    assets::*,
+    animation::AnimationControlSet,
+    assets::Handle,
     core::transform::Transform,
     ecs::prelude::*,
     renderer::{Camera, DisplayConfig, Projection, SpriteRender},
@@ -60,18 +61,28 @@ impl GameplayState {
     fn init_hero(&mut self, world: &mut World) {
         let texture = assets::load_texture("sprite_sheets/hero.png", world);
         let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
-        let control_set = build_animation_control_set(
-            world,
-            self.idle_animation_handle.clone(),
-            self.go_right_animation_handle.clone(),
-            self.go_left_animation_handle.clone(),
-            self.go_forward_animation_handle.clone(),
-            self.go_backward_animation_handle.clone(),
-        );
+
+        let idle = assets::load_sprite_render_animation(world, self.idle_animation_handle.clone());
+        let go_right =
+            assets::load_sprite_render_animation(world, self.go_right_animation_handle.clone());
+        let go_left =
+            assets::load_sprite_render_animation(world, self.go_left_animation_handle.clone());
+        let go_forward =
+            assets::load_sprite_render_animation(world, self.go_forward_animation_handle.clone());
+        let go_backward =
+            assets::load_sprite_render_animation(world, self.go_backward_animation_handle.clone());
 
         world
             .create_entity()
-            .with(control_set)
+            .with(AnimationControlSet::<HeroAnimationId, SpriteRender>::default())
+            .with(HeroAnimation {
+                idle: (HeroAnimationId::Idle, idle),
+                go_right: (HeroAnimationId::GoRight, go_right),
+                go_left: (HeroAnimationId::GoLeft, go_left),
+                go_forward: (HeroAnimationId::GoForward, go_forward),
+                go_backward: (HeroAnimationId::GoBackward, go_backward),
+                current_id: None,
+            })
             .with(SpriteRender {
                 sprite_sheet,
                 sprite_number: 0,

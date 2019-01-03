@@ -5,7 +5,10 @@ use amethyst::{
     ecs::prelude::{Component, VecStorage},
     renderer::SpriteRender,
 };
+use specs_derive::*;
 
+#[derive(Component)]
+#[storage(VecStorage)]
 pub struct HeroAnimation {
     pub idle: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub go_right: (HeroAnimationId, Handle<Animation<SpriteRender>>),
@@ -13,8 +16,4 @@ pub struct HeroAnimation {
     pub go_forward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub go_backward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub current_id: Option<HeroAnimationId>,
-}
-
-impl Component for HeroAnimation {
-    type Storage = VecStorage<Self>;
 }

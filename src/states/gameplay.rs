@@ -4,7 +4,7 @@ use crate::{
     components::{CameraTarget, HeroAnimation},
 };
 use amethyst::{
-    animation::AnimationControlSet,
+    animation::{Animation, AnimationControlSet},
     assets::{Handle, ProgressCounter},
     core::transform::Transform,
     ecs::prelude::*,
@@ -14,21 +14,21 @@ use amethyst::{
 
 pub struct GameplayState {
     display_config: DisplayConfig,
-    idle_animation_handle: Handle<SpriteAnimation>,
-    go_right_animation_handle: Handle<SpriteAnimation>,
-    go_left_animation_handle: Handle<SpriteAnimation>,
-    go_forward_animation_handle: Handle<SpriteAnimation>,
-    go_backward_animation_handle: Handle<SpriteAnimation>,
+    idle_animation_handle: Handle<Animation<SpriteRender>>,
+    go_right_animation_handle: Handle<Animation<SpriteRender>>,
+    go_left_animation_handle: Handle<Animation<SpriteRender>>,
+    go_forward_animation_handle: Handle<Animation<SpriteRender>>,
+    go_backward_animation_handle: Handle<Animation<SpriteRender>>,
 }
 
 impl GameplayState {
     pub fn new(
         display_config: DisplayConfig,
-        idle_animation_handle: Handle<SpriteAnimation>,
-        go_right_animation_handle: Handle<SpriteAnimation>,
-        go_left_animation_handle: Handle<SpriteAnimation>,
-        go_forward_animation_handle: Handle<SpriteAnimation>,
-        go_backward_animation_handle: Handle<SpriteAnimation>,
+        idle_animation_handle: Handle<Animation<SpriteRender>>,
+        go_right_animation_handle: Handle<Animation<SpriteRender>>,
+        go_left_animation_handle: Handle<Animation<SpriteRender>>,
+        go_forward_animation_handle: Handle<Animation<SpriteRender>>,
+        go_backward_animation_handle: Handle<Animation<SpriteRender>>,
     ) -> Self {
         GameplayState {
             display_config,
@@ -67,25 +67,27 @@ impl GameplayState {
         let texture = assets::load_texture("sprite_sheets/hero.png", world);
         let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
 
-        let idle = assets::load_sprite_render_animation(world, self.idle_animation_handle.clone());
-        let go_right =
-            assets::load_sprite_render_animation(world, self.go_right_animation_handle.clone());
-        let go_left =
-            assets::load_sprite_render_animation(world, self.go_left_animation_handle.clone());
-        let go_forward =
-            assets::load_sprite_render_animation(world, self.go_forward_animation_handle.clone());
-        let go_backward =
-            assets::load_sprite_render_animation(world, self.go_backward_animation_handle.clone());
-
         world
             .create_entity()
             .with(AnimationControlSet::<HeroAnimationId, SpriteRender>::default())
             .with(HeroAnimation {
-                idle: (HeroAnimationId::Idle, idle),
-                go_right: (HeroAnimationId::GoRight, go_right),
-                go_left: (HeroAnimationId::GoLeft, go_left),
-                go_forward: (HeroAnimationId::GoForward, go_forward),
-                go_backward: (HeroAnimationId::GoBackward, go_backward),
+                idle: (HeroAnimationId::Idle, self.idle_animation_handle.clone()),
+                go_right: (
+                    HeroAnimationId::GoRight,
+                    self.go_right_animation_handle.clone(),
+                ),
+                go_left: (
+                    HeroAnimationId::GoLeft,
+                    self.go_left_animation_handle.clone(),
+                ),
+                go_forward: (
+                    HeroAnimationId::GoForward,
+                    self.go_forward_animation_handle.clone(),
+                ),
+                go_backward: (
+                    HeroAnimationId::GoBackward,
+                    self.go_backward_animation_handle.clone(),
+                ),
                 current_id: None,
             })
             .with(SpriteRender {
@@ -157,15 +159,31 @@ impl SimpleState for LoadingState {
         ));
     }
 
-    fn update(&mut self, _data: &mut StateData<GameData>) -> SimpleTrans {
+    fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
+        let world = &data.world;
         if self.progress.is_complete() {
             return Trans::Switch(Box::new(GameplayState::new(
                 self.display_config.clone(),
-                self.idle_animation_handle.take().unwrap(),
-                self.go_right_animation_handle.take().unwrap(),
-                self.go_left_animation_handle.take().unwrap(),
-                self.go_forward_animation_handle.take().unwrap(),
-                self.go_backward_animation_handle.take().unwrap(),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.idle_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_right_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_left_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_forward_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_backward_animation_handle.take().unwrap(),
+                ),
             )));
         }
         Trans::None

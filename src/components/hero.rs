@@ -15,5 +15,9 @@ pub struct HeroAnimation {
     pub go_left: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub go_forward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub go_backward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
+    pub go_right_forward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
+    pub go_right_backward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
+    pub go_left_backward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
+    pub go_left_forward: (HeroAnimationId, Handle<Animation<SpriteRender>>),
     pub current_id: Option<HeroAnimationId>,
 }

@@ -1,5 +1,5 @@
 (
-    spritesheet_width: 128,
+    spritesheet_width: 256,
     spritesheet_height: 160,
     sprites: [
         // idle sprites
@@ -124,6 +124,106 @@
         (
             x: 96,
             y: 128,
+            width: 32,
+            height: 32,
+        ),
+        // move right up sprite
+        (
+            x: 128,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 160,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 192,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 224,
+            y: 0,
+            width: 32,
+            height: 32,
+        ),
+        // move right down sprite
+        (
+            x: 128,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 160,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 192,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 224,
+            y: 32,
+            width: 32,
+            height: 32,
+        ),
+        // move left down sprite
+        (
+            x: 128,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 160,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 192,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 224,
+            y: 64,
+            width: 32,
+            height: 32,
+        ),
+        // move left up sprite
+        (
+            x: 128,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 160,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 192,
+            y: 96,
+            width: 32,
+            height: 32,
+        ),
+        (
+            x: 224,
+            y: 96,
             width: 32,
             height: 32,
         ),

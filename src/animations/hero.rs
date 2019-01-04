@@ -7,4 +7,8 @@ pub enum AnimationId {
     GoLeft,
     GoForward,
     GoBackward,
+    GoRightForward,
+    GoRightBackward,
+    GoLeftBackward,
+    GoLeftForward,
 }

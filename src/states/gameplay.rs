@@ -19,6 +19,10 @@ pub struct GameplayState {
     go_left_animation_handle: Handle<Animation<SpriteRender>>,
     go_forward_animation_handle: Handle<Animation<SpriteRender>>,
     go_backward_animation_handle: Handle<Animation<SpriteRender>>,
+    go_right_forward_animation_handle: Handle<Animation<SpriteRender>>,
+    go_right_backward_animation_handle: Handle<Animation<SpriteRender>>,
+    go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
+    go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
 }
 
 impl GameplayState {
@@ -29,6 +33,10 @@ impl GameplayState {
         go_left_animation_handle: Handle<Animation<SpriteRender>>,
         go_forward_animation_handle: Handle<Animation<SpriteRender>>,
         go_backward_animation_handle: Handle<Animation<SpriteRender>>,
+        go_right_forward_animation_handle: Handle<Animation<SpriteRender>>,
+        go_right_backward_animation_handle: Handle<Animation<SpriteRender>>,
+        go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
+        go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
     ) -> Self {
         GameplayState {
             display_config,
@@ -37,6 +45,10 @@ impl GameplayState {
             go_left_animation_handle,
             go_forward_animation_handle,
             go_backward_animation_handle,
+            go_right_forward_animation_handle,
+            go_right_backward_animation_handle,
+            go_left_backward_animation_handle,
+            go_left_forward_animation_handle,
         }
     }
 }
@@ -88,6 +100,22 @@ impl GameplayState {
                     HeroAnimationId::GoBackward,
                     self.go_backward_animation_handle.clone(),
                 ),
+                go_right_forward: (
+                    HeroAnimationId::GoRightForward,
+                    self.go_right_forward_animation_handle.clone(),
+                ),
+                go_right_backward: (
+                    HeroAnimationId::GoRightBackward,
+                    self.go_right_backward_animation_handle.clone(),
+                ),
+                go_left_backward: (
+                    HeroAnimationId::GoLeftBackward,
+                    self.go_left_backward_animation_handle.clone(),
+                ),
+                go_left_forward: (
+                    HeroAnimationId::GoLeftForward,
+                    self.go_left_forward_animation_handle.clone(),
+                ),
                 current_id: None,
             })
             .with(SpriteRender {
@@ -97,7 +125,7 @@ impl GameplayState {
             .with(Transform::default())
             .build()
     }
-}
+    }
 
 impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<GameData>) {
@@ -114,6 +142,10 @@ pub struct LoadingState {
     go_left_animation_handle: Option<Handle<SpriteAnimation>>,
     go_forward_animation_handle: Option<Handle<SpriteAnimation>>,
     go_backward_animation_handle: Option<Handle<SpriteAnimation>>,
+    go_right_forward_animation_handle: Option<Handle<SpriteAnimation>>,
+    go_right_backward_animation_handle: Option<Handle<SpriteAnimation>>,
+    go_left_backward_animation_handle: Option<Handle<SpriteAnimation>>,
+    go_left_forward_animation_handle: Option<Handle<SpriteAnimation>>,
 }
 
 impl LoadingState {
@@ -126,6 +158,10 @@ impl LoadingState {
             go_left_animation_handle: None,
             go_forward_animation_handle: None,
             go_backward_animation_handle: None,
+            go_right_forward_animation_handle: None,
+            go_right_backward_animation_handle: None,
+            go_left_backward_animation_handle: None,
+            go_left_forward_animation_handle: None,
         }
     }
 }
@@ -157,6 +193,26 @@ impl SimpleState for LoadingState {
             &mut self.progress,
             data.world,
         ));
+        self.go_right_forward_animation_handle = Some(assets::load_sprite_animation(
+            "animations/hero/go_right_forward.ron",
+            &mut self.progress,
+            data.world,
+        ));
+        self.go_right_backward_animation_handle = Some(assets::load_sprite_animation(
+            "animations/hero/go_right_backward.ron",
+            &mut self.progress,
+            data.world,
+        ));
+        self.go_left_backward_animation_handle = Some(assets::load_sprite_animation(
+            "animations/hero/go_left_backward.ron",
+            &mut self.progress,
+            data.world,
+        ));
+        self.go_left_forward_animation_handle = Some(assets::load_sprite_animation(
+            "animations/hero/go_left_forward.ron",
+            &mut self.progress,
+            data.world,
+        ));
     }
 
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
@@ -183,6 +239,22 @@ impl SimpleState for LoadingState {
                 assets::load_sprite_render_animation(
                     world,
                     self.go_backward_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_right_forward_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_right_backward_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_left_backward_animation_handle.take().unwrap(),
+                ),
+                assets::load_sprite_render_animation(
+                    world,
+                    self.go_left_forward_animation_handle.take().unwrap(),
                 ),
             )));
         }

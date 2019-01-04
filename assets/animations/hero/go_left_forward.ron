@@ -1,0 +1,24 @@
+(
+    key_frames: [
+        (
+            time: 0.0,
+            sprite_index: 32
+        ),
+        (
+            time: 0.1,
+            sprite_index: 33
+        ),
+        (
+            time: 0.2,
+            sprite_index: 34
+        ),
+        (
+            time: 0.3,
+            sprite_index: 35
+        ),
+        (
+            time: 0.4,
+            sprite_index: 32
+        ),
+    ]
+)

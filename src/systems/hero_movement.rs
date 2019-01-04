@@ -9,6 +9,7 @@ use amethyst::{
     input::InputHandler,
     renderer::SpriteRender,
 };
+use nalgebra::base::Vector2;
 
 pub struct HeroMovementSystem;
 
@@ -30,16 +31,27 @@ impl<'a> System<'a> for HeroMovementSystem {
             let left_right_amount = input.axis_value("right_left").unwrap() as f32;
             let up_down_amount = input.axis_value("up_down").unwrap() as f32;
 
-            if left_right_amount != 0.0 {
-                transform.translate_x(left_right_amount);
-            } else {
-                transform.translate_y(up_down_amount);
+            if left_right_amount != 0.0 || up_down_amount != 0.0 {
+                let direction = Vector2::new(left_right_amount, up_down_amount).normalize();
+                transform.translate_xyz(direction.x, direction.y, 0.0);
             }
 
             let (id, handle) = if left_right_amount > 0.0 {
-                &animations.go_right
+                if up_down_amount > 0.0 {
+                    &animations.go_right_forward
+                } else if up_down_amount < 0.0 {
+                    &animations.go_right_backward
+                } else {
+                    &animations.go_right
+                }
             } else if left_right_amount < 0.0 {
-                &animations.go_left
+                if up_down_amount > 0.0 {
+                    &animations.go_left_forward
+                } else if up_down_amount < 0.0 {
+                    &animations.go_left_backward
+                } else {
+                    &animations.go_left
+                }
             } else if up_down_amount > 0.0 {
                 &animations.go_forward
             } else if up_down_amount < 0.0 {

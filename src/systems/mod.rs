@@ -1,3 +1,4 @@
+mod camera_targeting;
 mod hero_movement;
 
-pub use self::hero_movement::HeroMovementSystem;
+pub use self::{camera_targeting::CameraTargetingSystem, hero_movement::HeroMovementSystem};

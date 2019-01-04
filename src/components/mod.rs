@@ -1,3 +1,4 @@
+mod camera;
 mod hero;
 
-pub use self::hero::HeroAnimation;
+pub use self::{camera::CameraTarget, hero::HeroAnimation};

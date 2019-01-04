@@ -10,7 +10,6 @@ use amethyst::{
     renderer::SpriteRender,
 };
 
-#[derive(Default)]
 pub struct HeroMovementSystem;
 
 impl<'a> System<'a> for HeroMovementSystem {

@@ -1,4 +1,8 @@
-use crate::{animations::*, assets, components::HeroAnimation};
+use crate::{
+    animations::*,
+    assets,
+    components::{CameraTarget, HeroAnimation},
+};
 use amethyst::{
     animation::AnimationControlSet,
     assets::Handle,
@@ -38,7 +42,7 @@ impl GameplayState {
 }
 
 impl GameplayState {
-    fn init_camera(&self, world: &mut World) {
+    fn init_camera(&self, world: &mut World, target: Entity) {
         let (half_width, half_height) = {
             let (width, height) = self.display_config.dimensions.unwrap();
             (width as f32 * 0.5, height as f32 * 0.5)
@@ -55,10 +59,11 @@ impl GameplayState {
                 half_height,
             )))
             .with(transform)
+            .with(CameraTarget { entity: target })
             .build();
     }
 
-    fn init_hero(&mut self, world: &mut World) {
+    fn build_hero(&mut self, world: &mut World) -> Entity {
         let texture = assets::load_texture("sprite_sheets/hero.png", world);
         let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
 
@@ -88,13 +93,13 @@ impl GameplayState {
                 sprite_number: 0,
             })
             .with(Transform::default())
-            .build();
+            .build()
     }
 }
 
 impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<GameData>) {
-        self.init_camera(data.world);
-        self.init_hero(data.world);
+        let hero = self.build_hero(data.world);
+        self.init_camera(data.world, hero);
     }
 }

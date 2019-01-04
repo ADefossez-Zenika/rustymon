@@ -2229,6 +2229,7 @@ name = "rustymon"
 version = "0.1.0"
 dependencies = [
  "amethyst 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nalgebra 0.16.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.82 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.82 (registry+https://github.com/rust-lang/crates.io-index)",
  "specs-derive 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",

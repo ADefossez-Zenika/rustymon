@@ -1,8 +1,9 @@
 use crate::{
     animations::*,
     assets,
-    components::{CameraTarget, HeroAnimation},
+    components::{Body, CameraTarget, Dynamic, HeroAnimation, Shape},
 };
+
 use amethyst::{
     animation::{Animation, AnimationControlSet},
     assets::{Handle, ProgressCounter},
@@ -10,6 +11,11 @@ use amethyst::{
     ecs::prelude::*,
     renderer::{Camera, DisplayConfig, Projection, SpriteRender},
     GameData, SimpleState, SimpleTrans, StateData, Trans,
+};
+
+use ncollide2d::{
+    math::Vector,
+    shape::{Ball, Cuboid},
 };
 
 pub struct GameplayState {
@@ -123,6 +129,12 @@ impl GameplayState {
                 sprite_number: 0,
             })
             .with(Transform::default())
+            .with(Body {
+                shape: Shape::Circle {
+                    shape: Ball::new(16.0),
+                },
+                dynamic: Dynamic::Dynamic,
+            })
             .build()
     }
 
@@ -140,6 +152,12 @@ impl GameplayState {
                 sprite_number: 0,
             })
             .with(transform)
+            .with(Body {
+                shape: Shape::Box {
+                    shape: Cuboid::new(Vector::new(32.0, 16.0)),
+                },
+                dynamic: Dynamic::Static,
+            })
             .build();
     }
 }
@@ -148,7 +166,7 @@ impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<GameData>) {
         let hero = self.build_hero(data.world);
         self.init_camera(data.world, hero);
-        self.build_building(150.0, 150.0, data.world);
+        self.build_building(100.0, 100.0, data.world);
     }
 }
 

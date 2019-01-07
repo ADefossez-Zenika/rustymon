@@ -1,3 +1,3 @@
-mod gameplay;
+mod overworld;
 
-pub use self::gameplay::LoadingState as GameplayState;
+pub use self::overworld::LoadingState as OverworldState;

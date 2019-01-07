@@ -18,7 +18,7 @@ use ncollide2d::{
     shape::{Ball, Cuboid},
 };
 
-pub struct GameplayState {
+pub struct OverworldState {
     display_config: DisplayConfig,
     idle_animation_handle: Handle<Animation<SpriteRender>>,
     go_right_animation_handle: Handle<Animation<SpriteRender>>,
@@ -31,7 +31,7 @@ pub struct GameplayState {
     go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
 }
 
-impl GameplayState {
+impl OverworldState {
     pub fn new(
         display_config: DisplayConfig,
         idle_animation_handle: Handle<Animation<SpriteRender>>,
@@ -44,7 +44,7 @@ impl GameplayState {
         go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
         go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
     ) -> Self {
-        GameplayState {
+        OverworldState {
             display_config,
             idle_animation_handle,
             go_right_animation_handle,
@@ -59,7 +59,7 @@ impl GameplayState {
     }
 }
 
-impl GameplayState {
+impl OverworldState {
     fn init_camera(&self, world: &mut World, target: Entity) {
         let (half_width, half_height) = {
             let (width, height) = self.display_config.dimensions.unwrap();
@@ -162,7 +162,7 @@ impl GameplayState {
     }
 }
 
-impl SimpleState for GameplayState {
+impl SimpleState for OverworldState {
     fn on_start(&mut self, data: StateData<GameData>) {
         let hero = self.build_hero(data.world);
         self.init_camera(data.world, hero);
@@ -254,7 +254,7 @@ impl SimpleState for LoadingState {
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
         let world = &data.world;
         if self.progress.is_complete() {
-            return Trans::Switch(Box::new(GameplayState::new(
+            return Trans::Switch(Box::new(OverworldState::new(
                 self.display_config.clone(),
                 assets::load_sprite_render_animation(
                     world,

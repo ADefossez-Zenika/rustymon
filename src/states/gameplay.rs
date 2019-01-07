@@ -125,12 +125,30 @@ impl GameplayState {
             .with(Transform::default())
             .build()
     }
+
+    fn build_building(&mut self, x: f32, y: f32, world: &mut World) {
+        let texture = assets::load_texture("sprite_sheets/buildings.png", world);
+        let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/buildings.ron", texture, world);
+
+        let mut transform = Transform::default();
+        transform.set_xyz(x, y, 0.0);
+
+        world
+            .create_entity()
+            .with(SpriteRender {
+                sprite_sheet,
+                sprite_number: 0,
+            })
+            .with(transform)
+            .build();
     }
+}
 
 impl SimpleState for GameplayState {
     fn on_start(&mut self, data: StateData<GameData>) {
         let hero = self.build_hero(data.world);
         self.init_camera(data.world, hero);
+        self.build_building(150.0, 150.0, data.world);
     }
 }
 

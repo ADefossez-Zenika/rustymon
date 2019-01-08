@@ -1,6 +1,7 @@
 use crate::{
     animations::{create_singleton_looping_set, HeroAnimationId},
     components::HeroAnimation,
+    resources::WorldBounds,
 };
 use amethyst::{
     animation::AnimationControlSet,
@@ -20,11 +21,12 @@ impl<'a> System<'a> for HeroMovementSystem {
         WriteStorage<'a, Transform>,
         WriteStorage<'a, HeroAnimation>,
         WriteStorage<'a, AnimationControlSet<HeroAnimationId, SpriteRender>>,
+        Option<Read<'a, WorldBounds>>,
     );
 
     fn run(
         &mut self,
-        (entities, input, mut transforms, mut animations, mut animation_sets): Self::SystemData,
+        (entities, input, mut transforms, mut animations, mut animation_sets, bounds): Self::SystemData,
     ) {
         for (entity, transform, animations) in (&entities, &mut transforms, &mut animations).join()
         {
@@ -33,7 +35,14 @@ impl<'a> System<'a> for HeroMovementSystem {
 
             if left_right_amount != 0.0 || up_down_amount != 0.0 {
                 let direction = Vector2::new(left_right_amount, up_down_amount).normalize();
-                transform.translate_xyz(direction.x, direction.y, 0.0);
+                let translation = transform.translation();
+                let mut x = translation.x + direction.x;
+                let mut y = translation.y + direction.y;
+                if let Some(bounds) = &bounds {
+                    x = x.min(bounds.width * 0.5).max(-bounds.width * 0.5);
+                    y = y.min(bounds.height * 0.5).max(-bounds.height * 0.5);
+                }
+                transform.set_xyz(x, y, 0.0);
             }
 
             let (id, handle) = if left_right_amount > 0.0 {

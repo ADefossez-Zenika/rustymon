@@ -2,6 +2,7 @@ use crate::{
     animations::*,
     assets,
     components::{Body, CameraTarget, Dynamic, HeroAnimation, Shape},
+    resources::WorldBounds,
 };
 
 use amethyst::{
@@ -164,9 +165,12 @@ impl OverworldState {
 
 impl SimpleState for OverworldState {
     fn on_start(&mut self, data: StateData<GameData>) {
-        let hero = self.build_hero(data.world);
-        self.init_camera(data.world, hero);
-        self.build_building(100.0, 100.0, data.world);
+        let world = data.world;
+        world.add_resource(WorldBounds::new(10000.0, 10000.0));
+
+        let hero = self.build_hero(world);
+        self.init_camera(world, hero);
+        self.build_building(100.0, 100.0, world);
     }
 }
 

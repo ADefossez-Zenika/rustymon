@@ -18,7 +18,9 @@ use amethyst::{
 };
 
 fn main() -> amethyst::Result<()> {
-    amethyst::start_logger(Default::default());
+    amethyst::Logger::from_config(Default::default())
+        .level_for("gfx_device_gl", amethyst::LogLevelFilter::Warn)
+        .start();
 
     let display_config = DisplayConfig::load("configs/display.ron");
 

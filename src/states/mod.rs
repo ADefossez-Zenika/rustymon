@@ -6,8 +6,6 @@ pub use self::{
     overworld::LoadingState as OverworldState,
 };
 
-const CAM_Z_POS: f32 = 1.0;
-
 pub enum GameState {
     Overworld,
     Instance(Instance),

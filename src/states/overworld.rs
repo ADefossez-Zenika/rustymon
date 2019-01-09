@@ -1,26 +1,17 @@
-use crate::{
-    animations::*,
-    assets,
-    components::{Body, CameraTarget, Dynamic, HeroAnimation, Shape},
-    resources::WorldBounds,
-};
+use crate::{animations::SpriteAnimation, assets, entities, resources::WorldBounds};
 
 use super::{GameState, Instance, InstanceState};
 
 use amethyst::{
-    animation::{Animation, AnimationControlSet},
+    animation::Animation,
     assets::{Handle, ProgressCounter},
     core::transform::Transform,
     ecs::prelude::*,
-    renderer::{Camera, DisplayConfig, Projection, SpriteRender},
-    winit::VirtualKeyCode,
-    GameData, SimpleState, SimpleTrans, StateData, StateEvent, Trans,
+    renderer::{DisplayConfig, SpriteRender},
+    GameData, SimpleState, SimpleTrans, StateData, Trans,
 };
 
-use ncollide2d::{
-    math::Vector,
-    shape::{Ball, Cuboid},
-};
+use ncollide2d::{math::Vector, shape::Cuboid};
 
 pub struct OverworldState {
     display_config: DisplayConfig,
@@ -68,116 +59,45 @@ impl OverworldState {
 }
 
 impl OverworldState {
-    fn init_camera(&self, world: &mut World, target: Entity) -> Entity {
-        let (half_width, half_height) = {
-            let (width, height) = self.display_config.dimensions.unwrap();
-            (width as f32 * 0.5, height as f32 * 0.5)
-        };
-
-        let mut transform = Transform::default();
-        transform.set_z(super::CAM_Z_POS);
-        world
-            .create_entity()
-            .with(Camera::from(Projection::orthographic(
-                -half_width,
-                half_width,
-                -half_height,
-                half_height,
-            )))
-            .with(transform)
-            .with(CameraTarget { entity: target })
-            .build()
-    }
-
-    fn build_hero(&mut self, world: &mut World) -> Entity {
-        let texture = assets::load_texture("sprite_sheets/hero.png", world);
-        let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
-
-        world
-            .create_entity()
-            .with(AnimationControlSet::<HeroAnimationId, SpriteRender>::default())
-            .with(HeroAnimation {
-                idle: (HeroAnimationId::Idle, self.idle_animation_handle.clone()),
-                go_right: (
-                    HeroAnimationId::GoRight,
-                    self.go_right_animation_handle.clone(),
-                ),
-                go_left: (
-                    HeroAnimationId::GoLeft,
-                    self.go_left_animation_handle.clone(),
-                ),
-                go_forward: (
-                    HeroAnimationId::GoForward,
-                    self.go_forward_animation_handle.clone(),
-                ),
-                go_backward: (
-                    HeroAnimationId::GoBackward,
-                    self.go_backward_animation_handle.clone(),
-                ),
-                go_right_forward: (
-                    HeroAnimationId::GoRightForward,
-                    self.go_right_forward_animation_handle.clone(),
-                ),
-                go_right_backward: (
-                    HeroAnimationId::GoRightBackward,
-                    self.go_right_backward_animation_handle.clone(),
-                ),
-                go_left_backward: (
-                    HeroAnimationId::GoLeftBackward,
-                    self.go_left_backward_animation_handle.clone(),
-                ),
-                go_left_forward: (
-                    HeroAnimationId::GoLeftForward,
-                    self.go_left_forward_animation_handle.clone(),
-                ),
-                current_id: None,
-            })
-            .with(SpriteRender {
-                sprite_sheet,
-                sprite_number: 0,
-            })
-            .with(Transform::default())
-            .with(Body {
-                shape: Shape::Circle {
-                    shape: Ball::new(16.0),
-                },
-                dynamic: Dynamic::Dynamic,
-            })
-            .build()
-    }
-
-    fn build_building(&mut self, x: f32, y: f32, world: &mut World) {
-        let texture = assets::load_texture("sprite_sheets/buildings.png", world);
-        let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/buildings.ron", texture, world);
-
-        let mut transform = Transform::default();
-        transform.set_xyz(x, y, 0.0);
-
-        world
-            .create_entity()
-            .with(SpriteRender {
-                sprite_sheet,
-                sprite_number: 0,
-            })
-            .with(transform)
-            .with(Body {
-                shape: Shape::Box {
-                    shape: Cuboid::new(Vector::new(32.0, 16.0)),
-                },
-                dynamic: Dynamic::Static,
-            })
-            .build();
+    fn build_overworld_bounds() -> WorldBounds {
+        WorldBounds::new_around_origin(10000.0, 10000.0)
     }
 }
 
 impl SimpleState for OverworldState {
     fn on_start(&mut self, data: StateData<GameData>) {
         let world = data.world;
-        world.add_resource(WorldBounds::new_around_origin(10000.0, 10000.0));
+        world.add_resource(Self::build_overworld_bounds());
 
-        let hero = self.build_hero(world);
-        let camera = self.init_camera(world, hero);
-        self.build_building(100.0, 100.0, world);
+        let building_texture = assets::load_texture("sprite_sheets/buildings.png", world);
+        let building_sprite_sheet =
+            assets::load_sprite_sheet("sprite_sheets/buildings.ron", building_texture, world);
+
+        let hero = entities::build_hero(
+            self.idle_animation_handle.clone(),
+            self.go_right_animation_handle.clone(),
+            self.go_left_animation_handle.clone(),
+            self.go_forward_animation_handle.clone(),
+            self.go_backward_animation_handle.clone(),
+            self.go_right_forward_animation_handle.clone(),
+            self.go_right_backward_animation_handle.clone(),
+            self.go_left_backward_animation_handle.clone(),
+            self.go_left_forward_animation_handle.clone(),
+            world,
+        );
+        let camera = entities::build_camera(&self.display_config, world, hero);
+        entities::build_building(100.0, 100.0, building_sprite_sheet.clone(), world);
+        entities::build_portal(
+            100.0,
+            76.0,
+            Instance {
+                spawn: (1000.0, 1000.0),
+                bounds: WorldBounds::new(975.0, 1025.0, 975.0, 1025.0),
+            },
+            Cuboid::new(Vector::new(16.0, 16.0)),
+            building_sprite_sheet,
+            world,
+        );
 
         self.hero.0 = Some(hero);
         self.camera = Some(camera);
@@ -195,18 +115,6 @@ impl SimpleState for OverworldState {
         }
     }
 
-    fn handle_event(&mut self, data: StateData<GameData>, event: StateEvent) -> SimpleTrans {
-        if let StateEvent::Window(event) = &event {
-            if amethyst::input::is_key_down(&event, VirtualKeyCode::Escape) {
-                *data.world.write_resource::<GameState>() = GameState::Instance(Instance {
-                    spawn: (1000.0, 1000.0),
-                    bounds: WorldBounds::new(975.0, 1025.0, 975.0, 1025.0),
-                });
-            }
-        }
-        Trans::None
-    }
-
     fn on_pause(&mut self, data: StateData<GameData>) {
         println!("Pausing OverworldState");
 
@@ -217,13 +125,16 @@ impl SimpleState for OverworldState {
     fn on_resume(&mut self, data: StateData<GameData>) {
         println!("Resuming OverworldState");
 
+        // Restore overworld's boundaries
+        *data.world.write_resource::<WorldBounds>() = Self::build_overworld_bounds();
+
         // Put hero back to the position it was before state switch.
         // Point camera on hero.
         {
             let hero_trans = self.hero.1.take().unwrap();
             let cam_trans = {
                 let mut t = hero_trans.clone();
-                t.set_z(super::CAM_Z_POS);
+                t.set_z(entities::CAM_Z_POS);
                 t
             };
 

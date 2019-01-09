@@ -5,7 +5,7 @@ use amethyst::{
     StateEvent, Trans,
 };
 
-use crate::resources::WorldBounds;
+use crate::{entities, resources::WorldBounds};
 
 /// Instance data.
 #[derive(Clone)]
@@ -49,7 +49,7 @@ impl SimpleState for InstanceState {
             let hero_transform = self.build_transform_from_spawn();
             let cam_trans = {
                 let mut t = hero_transform.clone();
-                t.set_z(super::CAM_Z_POS);
+                t.set_z(entities::CAM_Z_POS);
                 t
             };
 

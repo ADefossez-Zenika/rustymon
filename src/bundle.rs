@@ -1,6 +1,6 @@
 use crate::{
     animations::SpriteAnimation,
-    systems::{CameraTargetingSystem, HeroMovementSystem, PhysicsSystem},
+    systems::{CameraTargetingSystem, HeroMovementSystem, PhysicsSystem, PortalTriggerSystem},
 };
 use amethyst::{
     assets::Processor,
@@ -19,6 +19,7 @@ impl<'a, 'b> SystemBundle<'a, 'b> for RustymonBundle {
             "camera_targeting",
             &["hero_movement"],
         );
+        builder.add(PortalTriggerSystem, "portal", &["hero_movement"]);
         builder.add(Processor::<SpriteAnimation>::new(), "", &[]);
         Ok(())
     }

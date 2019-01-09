@@ -2,6 +2,7 @@ mod animations;
 mod assets;
 mod bundle;
 mod components;
+mod entities;
 mod resources;
 mod states;
 mod systems;

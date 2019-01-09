@@ -7,6 +7,12 @@
             y: 0,
             width: 64,
             height: 32,
+        ),
+        (
+            x: 64,
+            y: 0,
+            width: 16,
+            height: 16,
         )
     ],
 )

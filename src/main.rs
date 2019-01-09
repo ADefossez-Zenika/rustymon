@@ -6,7 +6,11 @@ mod resources;
 mod states;
 mod systems;
 
-use crate::{animations::HeroAnimationId, bundle::RustymonBundle, states::OverworldState};
+use crate::{
+    animations::HeroAnimationId,
+    bundle::RustymonBundle,
+    states::{GameState, OverworldState},
+};
 
 use amethyst::{
     animation::AnimationBundle,
@@ -44,8 +48,9 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(RustymonBundle)?;
 
-    let mut game =
-        Application::build("assets/", OverworldState::new(display_config))?.build(game_data)?;
+    let mut game = Application::build("assets/", OverworldState::new(display_config))?
+        .with_resource(GameState::default())
+        .build(game_data)?;
     game.run();
     Ok(())
 }

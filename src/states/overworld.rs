@@ -5,13 +5,16 @@ use crate::{
     resources::WorldBounds,
 };
 
+use super::{GameState, Instance, InstanceState};
+
 use amethyst::{
     animation::{Animation, AnimationControlSet},
     assets::{Handle, ProgressCounter},
     core::transform::Transform,
     ecs::prelude::*,
     renderer::{Camera, DisplayConfig, Projection, SpriteRender},
-    GameData, SimpleState, SimpleTrans, StateData, Trans,
+    winit::VirtualKeyCode,
+    GameData, SimpleState, SimpleTrans, StateData, StateEvent, Trans,
 };
 
 use ncollide2d::{
@@ -30,6 +33,8 @@ pub struct OverworldState {
     go_right_backward_animation_handle: Handle<Animation<SpriteRender>>,
     go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
     go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
+    hero: (Option<Entity>, Option<Transform>),
+    camera: Option<Entity>,
 }
 
 impl OverworldState {
@@ -56,19 +61,21 @@ impl OverworldState {
             go_right_backward_animation_handle,
             go_left_backward_animation_handle,
             go_left_forward_animation_handle,
+            hero: (None, None),
+            camera: None,
         }
     }
 }
 
 impl OverworldState {
-    fn init_camera(&self, world: &mut World, target: Entity) {
+    fn init_camera(&self, world: &mut World, target: Entity) -> Entity {
         let (half_width, half_height) = {
             let (width, height) = self.display_config.dimensions.unwrap();
             (width as f32 * 0.5, height as f32 * 0.5)
         };
 
         let mut transform = Transform::default();
-        transform.set_z(1.0);
+        transform.set_z(super::CAM_Z_POS);
         world
             .create_entity()
             .with(Camera::from(Projection::orthographic(
@@ -79,7 +86,7 @@ impl OverworldState {
             )))
             .with(transform)
             .with(CameraTarget { entity: target })
-            .build();
+            .build()
     }
 
     fn build_hero(&mut self, world: &mut World) -> Entity {
@@ -166,11 +173,64 @@ impl OverworldState {
 impl SimpleState for OverworldState {
     fn on_start(&mut self, data: StateData<GameData>) {
         let world = data.world;
-        world.add_resource(WorldBounds::new(10000.0, 10000.0));
+        world.add_resource(WorldBounds::new_around_origin(10000.0, 10000.0));
 
         let hero = self.build_hero(world);
-        self.init_camera(world, hero);
+        let camera = self.init_camera(world, hero);
         self.build_building(100.0, 100.0, world);
+
+        self.hero.0 = Some(hero);
+        self.camera = Some(camera);
+    }
+
+    fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
+        data.data.update(&mut data.world);
+        match *data.world.read_resource::<GameState>() {
+            GameState::Instance(ref instance) => Trans::Push(Box::new(InstanceState::new(
+                instance.clone(),
+                self.hero.0.unwrap(),
+                self.camera.unwrap(),
+            ))),
+            _ => Trans::None,
+        }
+    }
+
+    fn handle_event(&mut self, data: StateData<GameData>, event: StateEvent) -> SimpleTrans {
+        if let StateEvent::Window(event) = &event {
+            if amethyst::input::is_key_down(&event, VirtualKeyCode::Escape) {
+                *data.world.write_resource::<GameState>() = GameState::Instance(Instance {
+                    spawn: (1000.0, 1000.0),
+                    bounds: WorldBounds::new(975.0, 1025.0, 975.0, 1025.0),
+                });
+            }
+        }
+        Trans::None
+    }
+
+    fn on_pause(&mut self, data: StateData<GameData>) {
+        println!("Pausing OverworldState");
+
+        let storage = data.world.read_storage::<Transform>();
+        self.hero.1 = storage.get(self.hero.0.unwrap()).cloned();
+    }
+
+    fn on_resume(&mut self, data: StateData<GameData>) {
+        println!("Resuming OverworldState");
+
+        // Put hero back to the position it was before state switch.
+        // Point camera on hero.
+        {
+            let hero_trans = self.hero.1.take().unwrap();
+            let cam_trans = {
+                let mut t = hero_trans.clone();
+                t.set_z(super::CAM_Z_POS);
+                t
+            };
+
+            let mut storage = data.world.write_storage::<Transform>();
+            storage.insert(self.hero.0.unwrap(), hero_trans).unwrap();
+            storage.insert(self.camera.unwrap(), cam_trans).unwrap();
+        }
     }
 }
 
@@ -256,6 +316,7 @@ impl SimpleState for LoadingState {
     }
 
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
+        data.data.update(&mut data.world);
         let world = &data.world;
         if self.progress.is_complete() {
             return Trans::Switch(Box::new(OverworldState::new(

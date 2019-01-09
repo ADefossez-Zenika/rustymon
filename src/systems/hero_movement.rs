@@ -39,8 +39,8 @@ impl<'a> System<'a> for HeroMovementSystem {
                 let mut x = translation.x + direction.x;
                 let mut y = translation.y + direction.y;
                 if let Some(bounds) = &bounds {
-                    x = x.min(bounds.width * 0.5).max(-bounds.width * 0.5);
-                    y = y.min(bounds.height * 0.5).max(-bounds.height * 0.5);
+                    x = x.min(bounds.right).max(bounds.left);
+                    y = y.min(bounds.top).max(bounds.bottom);
                 }
                 transform.set_xyz(x, y, 0.0);
             }

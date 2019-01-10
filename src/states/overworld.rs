@@ -24,7 +24,7 @@ pub struct OverworldState {
     go_right_backward_animation_handle: Handle<Animation<SpriteRender>>,
     go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
     go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
-    hero: (Option<Entity>, Option<Transform>),
+    hero: Option<Entity>,
     camera: Option<Entity>,
 }
 
@@ -52,7 +52,7 @@ impl OverworldState {
             go_right_backward_animation_handle,
             go_left_backward_animation_handle,
             go_left_forward_animation_handle,
-            hero: (None, None),
+            hero: None,
             camera: None,
         }
     }
@@ -93,13 +93,14 @@ impl SimpleState for OverworldState {
             Instance {
                 spawn: (1000.0, 1000.0),
                 bounds: WorldBounds::new(975.0, 1025.0, 975.0, 1025.0),
+                exit: (100.0, 76.0),
             },
             Cuboid::new(Vector::new(16.0, 16.0)),
             building_sprite_sheet,
             world,
         );
 
-        self.hero.0 = Some(hero);
+        self.hero = Some(hero);
         self.camera = Some(camera);
     }
 
@@ -108,18 +109,15 @@ impl SimpleState for OverworldState {
         match *data.world.read_resource::<GameState>() {
             GameState::Instance(ref instance) => Trans::Push(Box::new(InstanceState::new(
                 instance.clone(),
-                self.hero.0.unwrap(),
+                self.hero.unwrap(),
                 self.camera.unwrap(),
             ))),
             _ => Trans::None,
         }
     }
 
-    fn on_pause(&mut self, data: StateData<GameData>) {
+    fn on_pause(&mut self, _data: StateData<GameData>) {
         println!("Pausing OverworldState");
-
-        let storage = data.world.read_storage::<Transform>();
-        self.hero.1 = storage.get(self.hero.0.unwrap()).cloned();
     }
 
     fn on_resume(&mut self, data: StateData<GameData>) {
@@ -131,16 +129,26 @@ impl SimpleState for OverworldState {
         // Put hero back to the position it was before state switch.
         // Point camera on hero.
         {
-            let hero_trans = self.hero.1.take().unwrap();
-            let cam_trans = {
-                let mut t = hero_trans.clone();
-                t.set_z(entities::CAM_Z_POS);
-                t
-            };
+            match *data.world.read_resource::<GameState>() {
+                GameState::Overworld((x, y)) => {
+                    let hero_trans = {
+                        let mut t = Transform::default();
+                        t.set_xyz(x, y, 0.0);
+                        t
+                    };
 
-            let mut storage = data.world.write_storage::<Transform>();
-            storage.insert(self.hero.0.unwrap(), hero_trans).unwrap();
-            storage.insert(self.camera.unwrap(), cam_trans).unwrap();
+                    let cam_trans = {
+                        let mut t = Transform::default();
+                        t.set_xyz(x, y, entities::CAM_Z_POS);
+                        t
+                    };
+
+                    let mut storage = data.world.write_storage::<Transform>();
+                    storage.insert(self.hero.unwrap(), hero_trans).unwrap();
+                    storage.insert(self.camera.unwrap(), cam_trans).unwrap();
+                }
+                _ => panic!("Remusing Overworld state but the current state is not Overworld"),
+            }
         }
     }
 }

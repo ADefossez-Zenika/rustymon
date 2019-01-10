@@ -8,10 +8,14 @@ use amethyst::{
 use crate::{entities, resources::WorldBounds};
 
 /// Instance data.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Instance {
+    /// The position the hero will spawn when entering.
     pub spawn: (f32, f32),
+    /// The boundaries of the instance.
     pub bounds: WorldBounds,
+    /// The position in the overworld the hero will end up when exiting the instance.
+    pub exit: (f32, f32),
 }
 
 /// State active when inside an instance (building/dungeon).
@@ -70,7 +74,7 @@ impl SimpleState for InstanceState {
         data.data.update(&mut data.world);
 
         match *data.world.read_resource::<GameState>() {
-            GameState::Overworld => Trans::Pop,
+            GameState::Overworld(_) => Trans::Pop,
             _ => Trans::None,
         }
     }
@@ -78,7 +82,8 @@ impl SimpleState for InstanceState {
     fn handle_event(&mut self, data: StateData<GameData>, event: StateEvent) -> SimpleTrans {
         if let StateEvent::Window(event) = &event {
             if input::is_key_down(&event, VirtualKeyCode::Escape) {
-                *data.world.write_resource::<GameState>() = GameState::Overworld;
+                *data.world.write_resource::<GameState>() =
+                    GameState::Overworld(self.instance.exit);
             }
         }
         Trans::None

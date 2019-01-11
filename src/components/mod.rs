@@ -5,7 +5,7 @@ mod portal;
 
 pub use self::{
     camera::CameraTarget,
-    hero::HeroAnimation,
+    hero::Hero,
     physics::{Body, CollisionMarker, Dynamic, Shape},
     portal::Portal,
 };

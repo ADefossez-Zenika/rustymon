@@ -1,12 +1,12 @@
 use crate::{
     animations::HeroAnimationId,
     assets,
-    components::{Body, CameraTarget, Dynamic, HeroAnimation, Portal, Shape},
+    components::{Body, CameraTarget, Dynamic, Hero, Portal, Shape},
     states::Instance,
 };
 
 use amethyst::{
-    animation::{Animation, AnimationControlSet},
+    animation::AnimationSet,
     assets::Handle,
     core::transform::Transform,
     ecs::prelude::*,
@@ -44,15 +44,7 @@ pub fn build_camera(display_config: &DisplayConfig, world: &mut World, target: E
 
 /// Build the hero.
 pub fn build_hero(
-    idle_animation_handle: Handle<Animation<SpriteRender>>,
-    go_right_animation_handle: Handle<Animation<SpriteRender>>,
-    go_left_animation_handle: Handle<Animation<SpriteRender>>,
-    go_forward_animation_handle: Handle<Animation<SpriteRender>>,
-    go_backward_animation_handle: Handle<Animation<SpriteRender>>,
-    go_right_forward_animation_handle: Handle<Animation<SpriteRender>>,
-    go_right_backward_animation_handle: Handle<Animation<SpriteRender>>,
-    go_left_backward_animation_handle: Handle<Animation<SpriteRender>>,
-    go_left_forward_animation_handle: Handle<Animation<SpriteRender>>,
+    animations: AnimationSet<HeroAnimationId, SpriteRender>,
     world: &mut World,
 ) -> Entity {
     let texture = assets::load_texture("sprite_sheets/hero.png", world);
@@ -60,31 +52,8 @@ pub fn build_hero(
 
     world
         .create_entity()
-        .with(AnimationControlSet::<HeroAnimationId, SpriteRender>::default())
-        .with(HeroAnimation {
-            idle: (HeroAnimationId::Idle, idle_animation_handle),
-            go_right: (HeroAnimationId::GoRight, go_right_animation_handle),
-            go_left: (HeroAnimationId::GoLeft, go_left_animation_handle),
-            go_forward: (HeroAnimationId::GoForward, go_forward_animation_handle),
-            go_backward: (HeroAnimationId::GoBackward, go_backward_animation_handle),
-            go_right_forward: (
-                HeroAnimationId::GoRightForward,
-                go_right_forward_animation_handle,
-            ),
-            go_right_backward: (
-                HeroAnimationId::GoRightBackward,
-                go_right_backward_animation_handle,
-            ),
-            go_left_backward: (
-                HeroAnimationId::GoLeftBackward,
-                go_left_backward_animation_handle,
-            ),
-            go_left_forward: (
-                HeroAnimationId::GoLeftForward,
-                go_left_forward_animation_handle,
-            ),
-            current_id: None,
-        })
+        .with(Hero::new())
+        .with(animations)
         .with(SpriteRender {
             sprite_sheet,
             sprite_number: 0,

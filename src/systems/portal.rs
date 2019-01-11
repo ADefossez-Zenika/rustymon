@@ -1,5 +1,5 @@
 use crate::{
-    components::{HeroAnimation, Portal},
+    components::{Hero, Portal},
     states::GameState,
 };
 use amethyst::{
@@ -22,7 +22,7 @@ impl<'a> System<'a> for PortalTriggerSystem {
         Read<'a, InputHandler<String, String>>,
         ReadStorage<'a, Transform>,
         ReadStorage<'a, Portal>,
-        ReadStorage<'a, HeroAnimation>,
+        ReadStorage<'a, Hero>,
     );
 
     fn run(&mut self, (mut state, input, transforms, portals, hero): Self::SystemData) {

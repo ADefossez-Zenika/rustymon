@@ -1,7 +1,7 @@
 use crate::{
     animations::HeroAnimationId,
     assets,
-    components::{Body, CameraTarget, Dynamic, Hero, Portal, Shape},
+    components::{Body, CameraTarget, Dynamic, Hero, Mob, Portal, Shape},
     states::Instance,
 };
 
@@ -47,7 +47,8 @@ pub fn build_hero(
     animations: AnimationSet<HeroAnimationId, SpriteRender>,
     world: &mut World,
 ) -> Entity {
-    let texture = assets::load_texture("sprite_sheets/hero.png", world);
+    // let texture = assets::load_texture("sprite_sheets/hero.png", world);
+    let texture = assets::load_texture("sprite_sheets/hero_debug.png", world);
     let sprite_sheet = assets::load_sprite_sheet("sprite_sheets/hero.ron", texture, world);
 
     world
@@ -66,6 +67,35 @@ pub fn build_hero(
             dynamic: Dynamic::Dynamic,
         })
         .build()
+}
+
+/// Build a ferris at a given position.
+pub fn build_ferris(
+    x: f32,
+    y: f32,
+    reset_threshold: f32,
+    target_threshold: f32,
+    sprite_sheet: Handle<SpriteSheet>,
+    world: &mut World,
+) {
+    let mut transform = Transform::default();
+    transform.set_xyz(x, y, 0.0);
+
+    world
+        .create_entity()
+        .with(Mob::new(x, y, reset_threshold, target_threshold))
+        .with(SpriteRender {
+            sprite_sheet,
+            sprite_number: 0,
+        })
+        .with(transform)
+        .with(Body {
+            shape: Shape::Circle {
+                shape: Ball::new(16.0),
+            },
+            dynamic: Dynamic::Dynamic,
+        })
+        .build();
 }
 
 /// Build a building.

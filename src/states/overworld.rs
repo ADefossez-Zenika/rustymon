@@ -50,11 +50,17 @@ impl SimpleState for OverworldState {
         let world = data.world;
         world.add_resource(Self::build_overworld_bounds());
 
+        // TODO: Move asset loading code into loading state...
         let building_texture = assets::load_texture("sprite_sheets/buildings.png", world);
         let building_sprite_sheet =
             assets::load_sprite_sheet("sprite_sheets/buildings.ron", building_texture, world);
 
+        let ferris_texture = assets::load_texture("sprite_sheets/ferris.png", world);
+        let ferris_sprite_sheet =
+            assets::load_sprite_sheet("sprite_sheets/ferris.ron", ferris_texture, world);
+
         let hero = entities::build_hero(self.hero_animations.take().unwrap(), world);
+        entities::build_ferris(50.0, 0.0, 300.0, 100.0, ferris_sprite_sheet, world);
         let camera = entities::build_camera(&self.display_config, world, hero);
         entities::build_building(100.0, 100.0, building_sprite_sheet.clone(), world);
         entities::build_portal(

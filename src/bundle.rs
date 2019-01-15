@@ -1,6 +1,9 @@
 use crate::{
     animations::SpriteAnimation,
-    systems::{CameraTargetingSystem, HeroMovementSystem, PhysicsSystem, PortalTriggerSystem},
+    systems::{
+        CameraTargetingSystem, HeroMovementSystem, MobMovementSystem, MobTargetSystem,
+        PhysicsSystem, PortalTriggerSystem,
+    },
 };
 use amethyst::{
     assets::Processor,
@@ -20,6 +23,9 @@ impl<'a, 'b> SystemBundle<'a, 'b> for RustymonBundle {
             &["hero_movement"],
         );
         builder.add(PortalTriggerSystem, "portal", &["hero_movement"]);
+        builder.add(MobTargetSystem, "mob_target", &[]);
+        // Could have a dependency on 'mob_target' but it seems ok to have one frame latency before starting to follow the target.
+        builder.add(MobMovementSystem, "mob_movement", &[]);
         builder.add(Processor::<SpriteAnimation>::new(), "", &[]);
         Ok(())
     }

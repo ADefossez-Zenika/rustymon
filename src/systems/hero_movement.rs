@@ -1,16 +1,14 @@
 use crate::{
     animations::{create_singleton_looping_set, HeroAnimationId},
-    components::Hero,
-    resources::WorldBounds,
+    components::{Hero, Velocity},
 };
 use amethyst::{
     animation::{AnimationControlSet, AnimationSet},
-    core::transform::Transform,
     ecs::prelude::{Entities, Join, Read, ReadStorage, System, WriteStorage},
     input::InputHandler,
     renderer::SpriteRender,
 };
-use nalgebra::base::Vector2;
+use ncollide2d::math::Vector;
 
 /// Move the hero according to the input.
 /// If the hero has animations, also animates him according to its direction.
@@ -20,31 +18,25 @@ impl<'a> System<'a> for HeroMovementSystem {
     type SystemData = (
         Entities<'a>,
         Read<'a, InputHandler<String, String>>,
-        WriteStorage<'a, Transform>,
+        WriteStorage<'a, Velocity>,
         WriteStorage<'a, Hero>,
         ReadStorage<'a, AnimationSet<HeroAnimationId, SpriteRender>>,
         WriteStorage<'a, AnimationControlSet<HeroAnimationId, SpriteRender>>,
-        Option<Read<'a, WorldBounds>>,
     );
 
     fn run(
         &mut self,
-        (entities, input, mut transforms, mut heros, animations, mut animation_controls, bounds): Self::SystemData,
+        (entities, input, mut velocities, mut heros, animations, mut animation_controls): Self::SystemData,
     ) {
-        for (entity, transform, hero) in (&entities, &mut transforms, &mut heros).join() {
+        for (entity, velocity, hero) in (&entities, &mut velocities, &mut heros).join() {
+            velocity.reset();
+
             let left_right_amount = input.axis_value("right_left").unwrap() as f32;
             let up_down_amount = input.axis_value("up_down").unwrap() as f32;
 
             if left_right_amount != 0.0 || up_down_amount != 0.0 {
-                let direction = Vector2::new(left_right_amount, up_down_amount).normalize();
-                let translation = transform.translation();
-                let mut x = translation.x + direction.x;
-                let mut y = translation.y + direction.y;
-                if let Some(bounds) = &bounds {
-                    x = x.min(bounds.right).max(bounds.left);
-                    y = y.min(bounds.top).max(bounds.bottom);
-                }
-                transform.set_xyz(x, y, 0.0);
+                velocity.direction = Vector::new(left_right_amount, up_down_amount).normalize();
+                velocity.speed = 1.0;
             }
 
             if let Some(animations) = animations.get(entity) {

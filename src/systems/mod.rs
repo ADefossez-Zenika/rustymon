@@ -8,6 +8,6 @@ pub use self::{
     camera_targeting::CameraTargetingSystem,
     hero_movement::HeroMovementSystem,
     mob::{MobMovementSystem, MobTargetSystem},
-    physics::PhysicsSystem,
+    physics::{PhysicsSystem, MovementSystem},
     portal::PortalTriggerSystem,
 };

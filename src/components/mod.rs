@@ -8,6 +8,6 @@ pub use self::{
     camera::CameraTarget,
     hero::Hero,
     mob::Mob,
-    physics::{Body, CollisionMarker, Dynamic, Shape},
+    physics::{Body, CollisionMarker, Dynamic, Shape, Velocity},
     portal::Portal,
 };

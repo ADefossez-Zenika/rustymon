@@ -1,7 +1,7 @@
 use crate::{
     animations::HeroAnimationId,
     assets,
-    components::{Body, CameraTarget, Dynamic, Hero, Mob, Portal, Shape},
+    components::{Body, CameraTarget, Dynamic, Hero, Mob, Portal, Shape, Velocity},
     states::Instance,
 };
 
@@ -60,6 +60,7 @@ pub fn build_hero(
             sprite_number: 0,
         })
         .with(Transform::default())
+        .with(Velocity::new())
         .with(Body {
             shape: Shape::Circle {
                 shape: Ball::new(16.0),
@@ -89,6 +90,7 @@ pub fn build_ferris(
             sprite_number: 0,
         })
         .with(transform)
+        .with(Velocity::new())
         .with(Body {
             shape: Shape::Circle {
                 shape: Ball::new(16.0),

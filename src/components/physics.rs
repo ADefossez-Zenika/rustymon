@@ -7,6 +7,29 @@ use specs_derive::*;
 
 #[derive(Component)]
 #[storage(VecStorage)]
+pub struct Velocity {
+    pub direction: Vector<f32>,
+    pub speed: f32,
+}
+
+impl Velocity {
+    /// Create a new velocity with default values.
+    pub fn new() -> Self {
+        Velocity {
+            direction: Vector::new(0.0, 0.0),
+            speed: 0.0,
+        }
+    }
+
+    /// Reset the velocity to its default values.
+    pub fn reset(&mut self) {
+        self.direction = Vector::new(0.0, 0.0);
+        self.speed = 0.0;
+    }
+}
+
+#[derive(Component)]
+#[storage(VecStorage)]
 pub struct Body {
     pub shape: Shape,
     pub dynamic: Dynamic,

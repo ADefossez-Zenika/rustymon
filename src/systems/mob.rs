@@ -1,4 +1,4 @@
-use crate::components::{Hero, Mob};
+use crate::components::{Hero, Mob, Velocity};
 use amethyst::{
     core::transform::Transform,
     ecs::{Entities, Join, ReadStorage, System, WriteStorage},
@@ -37,11 +37,6 @@ impl<'a> System<'a> for MobTargetSystem {
     }
 }
 
-fn get_position(t: &Transform) -> Vector<f32> {
-    let translation = t.translation();
-    Vector::new(translation.x, translation.y)
-}
-
 /// Handle mob movement.
 /// Follow currently targetted entity.
 /// Get back to spawn when too far.
@@ -49,28 +44,27 @@ pub struct MobMovementSystem;
 
 impl<'a> System<'a> for MobMovementSystem {
     type SystemData = (
-        Entities<'a>,
         WriteStorage<'a, Mob>,
-        WriteStorage<'a, Transform>,
+        ReadStorage<'a, Transform>,
+        WriteStorage<'a, Velocity>,
     );
 
-    fn run(&mut self, (entities, mut mobs, mut transforms): Self::SystemData) {
-        for (entity, mob) in (&entities, &mut mobs).join() {
+    fn run(&mut self, (mut mobs, transforms, mut velocities): Self::SystemData) {
+        for (mob, transform, velocity) in (&mut mobs, &transforms, &mut velocities).join() {
+            //Reset velocity
+            velocity.reset();
+
             // Go toward target
             if let Some(target) = mob.target {
                 let target_position = get_position(transforms.get(target).unwrap());
+                let mob_position = get_position(transform);
 
-                let mob_transform = transforms.get_mut(entity).unwrap();
-                let mob_position = get_position(mob_transform);
-
-                let direction = (target_position - mob_position).normalize();
-                mob_transform.translate_x(direction.x * MOB_SPEED);
-                mob_transform.translate_y(direction.y * MOB_SPEED);
+                velocity.direction = (target_position - mob_position).normalize();
+                velocity.speed = MOB_SPEED;
             }
 
             // Check if should reset or stop resetting
-            let mob_transform = transforms.get_mut(entity).unwrap();
-            let mob_position = get_position(mob_transform);
+            let mob_position = get_position(transform);
             let spawn = Vector::new(mob.spawn.0, mob.spawn.1);
             let direction = spawn - mob_position;
             let squared_distance = direction.norm_squared();
@@ -81,12 +75,17 @@ impl<'a> System<'a> for MobMovementSystem {
 
             // If resetting, go toward spawn and stop when close
             if mob.resetting && squared_distance > 1.0 {
-                let direction = direction.normalize();
-                mob_transform.translate_x(direction.x * MOB_SPEED);
-                mob_transform.translate_y(direction.y * MOB_SPEED);
+                velocity.direction = direction.normalize();
+                velocity.speed = MOB_SPEED;
             } else if mob.resetting {
                 mob.resetting = false;
             }
         }
     }
+}
+
+/// Get the position as a Vector from a `Tranform`.
+fn get_position(t: &Transform) -> Vector<f32> {
+    let translation = t.translation();
+    Vector::new(translation.x, translation.y)
 }

@@ -1,6 +1,6 @@
 use amethyst::{
     core::transform::Transform,
-    ecs::prelude::{Entities, Join, ReadStorage, System, WriteStorage},
+    ecs::prelude::{Entities, Join, Read, ReadStorage, System, WriteStorage},
 };
 
 use ncollide2d::{
@@ -8,7 +8,38 @@ use ncollide2d::{
     query::{contact, Contact},
 };
 
-use crate::components::{Body, CollisionMarker, Dynamic, Shape};
+use crate::{
+    components::{Body, CollisionMarker, Dynamic, Shape, Velocity},
+    resources::WorldBounds,
+};
+
+/// Move entities according to their velocity.
+/// Also make sure that entity is kept in world boundaries if any.
+pub struct MovementSystem;
+
+impl<'a> System<'a> for MovementSystem {
+    type SystemData = (
+        WriteStorage<'a, Transform>,
+        ReadStorage<'a, Velocity>,
+        Option<Read<'a, WorldBounds>>,
+    );
+
+    fn run(&mut self, (mut transforms, velocities, bounds): Self::SystemData) {
+        for (transform, velocity) in (&mut transforms, &velocities).join() {
+            let translation = transform.translation();
+            let mut x = translation.x + velocity.direction.x * velocity.speed;
+            let mut y = translation.y + velocity.direction.y * velocity.speed;
+
+            if let Some(bounds) = &bounds {
+                x = x.min(bounds.right).max(bounds.left);
+                y = y.min(bounds.top).max(bounds.bottom);
+            }
+
+            transform.set_x(x);
+            transform.set_y(y);
+        }
+    }
+}
 
 /// Simple physics computation system. Handle collision detection and resolution.
 /// This is a first draft which might be removed in favor of ncollide simulation.

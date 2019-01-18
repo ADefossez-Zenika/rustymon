@@ -1,4 +1,4 @@
-use crate::components::{Hero, Mob, Velocity};
+use crate::components::{Active, Hero, Mob, Velocity};
 use amethyst::{
     core::transform::Transform,
     ecs::{Entities, Join, ReadStorage, System, WriteStorage},
@@ -16,16 +16,17 @@ impl<'a> System<'a> for MobTargetSystem {
         WriteStorage<'a, Mob>,
         ReadStorage<'a, Hero>,
         ReadStorage<'a, Transform>,
+        ReadStorage<'a, Active>,
     );
 
-    fn run(&mut self, (entities, mut mobs, heros, transforms): Self::SystemData) {
-        for (mob, m_transform) in (&mut mobs, &transforms).join() {
+    fn run(&mut self, (entities, mut mobs, heros, transforms, actives): Self::SystemData) {
+        for (mob, m_transform, _) in (&mut mobs, &transforms, &actives).join() {
             if mob.resetting {
                 continue;
             }
 
             let m_position = get_position(m_transform);
-            for (entity, _, h_transform) in (&entities, &heros, &transforms).join() {
+            for (entity, _, h_transform, _) in (&entities, &heros, &transforms, &actives).join() {
                 // check target theshold
                 let h_position = get_position(h_transform);
                 let squared_distance = (m_position - h_position).norm_squared();
@@ -47,20 +48,25 @@ impl<'a> System<'a> for MobMovementSystem {
         WriteStorage<'a, Mob>,
         ReadStorage<'a, Transform>,
         WriteStorage<'a, Velocity>,
+        ReadStorage<'a, Active>,
     );
 
-    fn run(&mut self, (mut mobs, transforms, mut velocities): Self::SystemData) {
-        for (mob, transform, velocity) in (&mut mobs, &transforms, &mut velocities).join() {
+    fn run(&mut self, (mut mobs, transforms, mut velocities, actives): Self::SystemData) {
+        for (mob, transform, velocity, _) in
+            (&mut mobs, &transforms, &mut velocities, &actives).join()
+        {
             //Reset velocity
             velocity.reset();
 
             // Go toward target
             if let Some(target) = mob.target {
-                let target_position = get_position(transforms.get(target).unwrap());
-                let mob_position = get_position(transform);
+                if actives.get(target).is_some() {
+                    let target_position = get_position(transforms.get(target).unwrap());
+                    let mob_position = get_position(transform);
 
-                velocity.direction = (target_position - mob_position).normalize();
-                velocity.speed = MOB_SPEED;
+                    velocity.direction = (target_position - mob_position).normalize();
+                    velocity.speed = MOB_SPEED;
+                }
             }
 
             // Check if should reset or stop resetting

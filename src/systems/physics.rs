@@ -9,7 +9,7 @@ use ncollide2d::{
 };
 
 use crate::{
-    components::{Body, CollisionMarker, Dynamic, Shape, Velocity},
+    components::{Body, CollisionMarker, Dynamic, Shape, Velocity, Active},
     resources::WorldBounds,
 };
 
@@ -21,11 +21,12 @@ impl<'a> System<'a> for MovementSystem {
     type SystemData = (
         WriteStorage<'a, Transform>,
         ReadStorage<'a, Velocity>,
+        ReadStorage<'a, Active>,
         Option<Read<'a, WorldBounds>>,
     );
 
-    fn run(&mut self, (mut transforms, velocities, bounds): Self::SystemData) {
-        for (transform, velocity) in (&mut transforms, &velocities).join() {
+    fn run(&mut self, (mut transforms, velocities, actives, bounds): Self::SystemData) {
+        for (transform, _, velocity) in (&mut transforms, &actives, &velocities).join() {
             let translation = transform.translation();
             let mut x = translation.x + velocity.direction.x * velocity.speed;
             let mut y = translation.y + velocity.direction.y * velocity.speed;
@@ -51,12 +52,13 @@ impl<'a> System<'a> for PhysicsSystem {
         WriteStorage<'a, Transform>,
         ReadStorage<'a, Body>,
         WriteStorage<'a, CollisionMarker>,
+        ReadStorage<'a, Active>,
     );
 
-    fn run(&mut self, (entities, mut transforms, bodies, mut collisions): Self::SystemData) {
+    fn run(&mut self, (entities, mut transforms, bodies, mut collisions, actives): Self::SystemData) {
         // Detect collisions and mark dynamics colliding entities
-        for (entity_a, transform_a, body_a) in (&entities, &transforms, &bodies).join() {
-            for (entity_b, transform_b, body_b) in (&entities, &transforms, &bodies).join() {
+        for (entity_a, transform_a, body_a, _) in (&entities, &transforms, &bodies, &actives).join() {
+            for (entity_b, transform_b, body_b, _) in (&entities, &transforms, &bodies, &actives).join() {
                 if entity_a == entity_b {
                     continue;
                 }
@@ -77,7 +79,7 @@ impl<'a> System<'a> for PhysicsSystem {
         }
 
         // Resolve all collisions
-        for (transform, collision) in (&mut transforms, &collisions).join() {
+        for (transform, collision, _) in (&mut transforms, &collisions, &actives).join() {
             transform.translate_x(collision.penetration.x);
             transform.translate_y(collision.penetration.y);
         }

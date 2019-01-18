@@ -3,6 +3,7 @@ mod hero;
 mod mob;
 mod physics;
 mod portal;
+mod states;
 
 pub use self::{
     camera::CameraTarget,
@@ -10,4 +11,5 @@ pub use self::{
     mob::Mob,
     physics::{Body, CollisionMarker, Dynamic, Shape, Velocity},
     portal::Portal,
+    states::{Active, InstanceCompat, OverworldCompat},
 };

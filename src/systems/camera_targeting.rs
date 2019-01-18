@@ -1,4 +1,4 @@
-use crate::components::CameraTarget;
+use crate::components::{Active, CameraTarget};
 use amethyst::{
     core::transform::Transform,
     ecs::prelude::{Entities, Join, ReadStorage, System, WriteStorage},
@@ -18,10 +18,15 @@ impl<'a> System<'a> for CameraTargetingSystem {
         ReadStorage<'a, Camera>,
         ReadStorage<'a, CameraTarget>,
         WriteStorage<'a, Transform>,
+        ReadStorage<'a, Active>,
     );
 
-    fn run(&mut self, (entities, cameras, targets, mut transforms): Self::SystemData) {
-        for (entity, _, target) in (&entities, &cameras, &targets).join() {
+    fn run(&mut self, (entities, cameras, targets, mut transforms, actives): Self::SystemData) {
+        for (entity, _, target, _) in (&entities, &cameras, &targets, &actives).join() {
+            if actives.get(target.entity).is_none() {
+                continue;
+            }
+            
             let new_cam_position =
                 compute_new_camera_position(transforms.get(entity), transforms.get(target.entity));
             if let Some(new_cam_position) = new_cam_position {

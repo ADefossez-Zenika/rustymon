@@ -1,6 +1,8 @@
 use crate::{
     animations::{HeroAnimationId, SpriteAnimation},
-    assets, entities,
+    assets,
+    components::{Active, InstanceCompat, OverworldCompat},
+    entities,
     resources::WorldBounds,
 };
 
@@ -81,13 +83,30 @@ impl SimpleState for OverworldState {
     }
 
     fn update(&mut self, data: &mut StateData<GameData>) -> SimpleTrans {
-        data.data.update(&mut data.world);
-        match *data.world.read_resource::<GameState>() {
-            GameState::Instance(ref instance) => Trans::Push(Box::new(InstanceState::new(
-                instance.clone(),
-                self.hero.unwrap(),
-                self.camera.unwrap(),
-            ))),
+        data.data.update(data.world);
+        let state = *data.world.read_resource::<GameState>();
+        match state {
+            GameState::Instance(instance) => {
+                // Deactivate entities which are not 'instance compatible'
+                data.world.exec(
+                    |(entities, mut actives, instance_compats): (
+                        Entities,
+                        WriteStorage<Active>,
+                        ReadStorage<InstanceCompat>,
+                    )| {
+                        for (entity, _) in (&entities, !&instance_compats).join() {
+                            actives.remove(entity);
+                        }
+                    },
+                );
+
+                // Transition to instance state
+                Trans::Push(Box::new(InstanceState::new(
+                    instance.clone(),
+                    self.hero.unwrap(),
+                    self.camera.unwrap(),
+                )))
+            }
             _ => Trans::None,
         }
     }
@@ -126,6 +145,19 @@ impl SimpleState for OverworldState {
                 _ => panic!("Remusing Overworld state but the current state is not Overworld"),
             }
         }
+
+        // Activate entities which are 'overworld compatible' and currently inactive
+        data.world.exec(
+            |(entities, mut actives, overworld_compats): (
+                Entities,
+                WriteStorage<Active>,
+                ReadStorage<OverworldCompat>,
+            )| {
+                for (entity, _) in (&entities, &overworld_compats).join() {
+                    actives.insert(entity, Active).unwrap();
+                }
+            },
+        );
     }
 }
 

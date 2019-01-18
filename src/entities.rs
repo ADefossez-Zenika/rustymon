@@ -1,7 +1,10 @@
 use crate::{
     animations::HeroAnimationId,
     assets,
-    components::{Body, CameraTarget, Dynamic, Hero, Mob, Portal, Shape, Velocity},
+    components::{
+        Active, Body, CameraTarget, Dynamic, Hero, InstanceCompat, Mob, OverworldCompat, Portal,
+        Shape, Velocity,
+    },
     states::Instance,
 };
 
@@ -31,6 +34,9 @@ pub fn build_camera(display_config: &DisplayConfig, world: &mut World, target: E
     transform.set_z(CAM_Z_POS);
     world
         .create_entity()
+        .with(Active)
+        .with(OverworldCompat)
+        .with(InstanceCompat)
         .with(Camera::from(Projection::orthographic(
             -half_width,
             half_width,
@@ -53,6 +59,9 @@ pub fn build_hero(
 
     world
         .create_entity()
+        .with(Active)
+        .with(OverworldCompat)
+        .with(InstanceCompat)
         .with(Hero::new())
         .with(animations)
         .with(SpriteRender {
@@ -84,6 +93,8 @@ pub fn build_ferris(
 
     world
         .create_entity()
+        .with(Active)
+        .with(OverworldCompat)
         .with(Mob::new(x, y, reset_threshold, target_threshold))
         .with(SpriteRender {
             sprite_sheet,
@@ -108,6 +119,8 @@ pub fn build_building(x: f32, y: f32, sprite_sheet: Handle<SpriteSheet>, world: 
 
     world
         .create_entity()
+        .with(Active)
+        .with(OverworldCompat)
         .with(SpriteRender {
             sprite_sheet,
             sprite_number: 0,
@@ -137,6 +150,8 @@ pub fn build_portal(
 
     world
         .create_entity()
+        .with(Active)
+        .with(OverworldCompat)
         .with(SpriteRender {
             sprite_sheet,
             sprite_number: 1,

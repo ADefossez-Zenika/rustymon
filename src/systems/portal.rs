@@ -1,5 +1,5 @@
 use crate::{
-    components::{Hero, Portal},
+    components::{Hero, Portal, Active},
     states::GameState,
 };
 use amethyst::{
@@ -23,17 +23,18 @@ impl<'a> System<'a> for PortalTriggerSystem {
         ReadStorage<'a, Transform>,
         ReadStorage<'a, Portal>,
         ReadStorage<'a, Hero>,
+        ReadStorage<'a, Active>,
     );
 
-    fn run(&mut self, (mut state, input, transforms, portals, hero): Self::SystemData) {
-        'outer: for (transform_p, portal) in (&transforms, &portals).join() {
+    fn run(&mut self, (mut state, input, transforms, portals, hero, actives): Self::SystemData) {
+        'outer: for (transform_p, portal, _) in (&transforms, &portals, &actives).join() {
             let trigger_position = {
                 let t = transform_p.translation();
                 Isometry::new(Vector::new(t.x, t.y), nalgebra::zero())
             };
 
             let zone = &portal.trigger_zone;
-            for (transform_h, _) in (&transforms, &hero).join() {
+            for (transform_h, _, _) in (&transforms, &hero, &actives).join() {
                 let hero_position = {
                     let t = transform_h.translation();
                     Point::new(t.x, t.y)

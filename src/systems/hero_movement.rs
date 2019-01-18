@@ -1,6 +1,6 @@
 use crate::{
     animations::{create_singleton_looping_set, HeroAnimationId},
-    components::{Hero, Velocity},
+    components::{Active, Hero, Velocity},
 };
 use amethyst::{
     animation::{AnimationControlSet, AnimationSet},
@@ -22,13 +22,15 @@ impl<'a> System<'a> for HeroMovementSystem {
         WriteStorage<'a, Hero>,
         ReadStorage<'a, AnimationSet<HeroAnimationId, SpriteRender>>,
         WriteStorage<'a, AnimationControlSet<HeroAnimationId, SpriteRender>>,
+        ReadStorage<'a, Active>,
     );
 
     fn run(
         &mut self,
-        (entities, input, mut velocities, mut heros, animations, mut animation_controls): Self::SystemData,
+        (entities, input, mut velocities, mut heros, animations, mut animation_controls, actives): Self::SystemData,
     ) {
-        for (entity, velocity, hero) in (&entities, &mut velocities, &mut heros).join() {
+        for (entity, velocity, hero, _) in (&entities, &mut velocities, &mut heros, &actives).join()
+        {
             velocity.reset();
 
             let left_right_amount = input.axis_value("right_left").unwrap() as f32;

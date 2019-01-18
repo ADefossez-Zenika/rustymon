@@ -10,7 +10,7 @@ pub use self::{
 /// Each state will test the current value of this ressource.
 /// If it doesn't match the one they are attached to then it has to
 /// transition to the requested one.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum GameState {
     /// Should transition to the overworld state and set the players at the given position.
     Overworld((f32, f32)),

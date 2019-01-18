@@ -8,7 +8,7 @@ use amethyst::{
 use crate::{entities, resources::WorldBounds};
 
 /// Instance data.
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Instance {
     /// The position the hero will spawn when entering.
     pub spawn: (f32, f32),

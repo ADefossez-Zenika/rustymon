@@ -10,6 +10,7 @@ mod systems;
 use crate::{
     animations::HeroAnimationId,
     bundle::RustymonBundle,
+    components::{InstanceCompat, OverworldCompat},
     states::{GameState, OverworldState},
 };
 
@@ -51,6 +52,8 @@ fn main() -> amethyst::Result<()> {
 
     let mut game = Application::build("assets/", OverworldState::new(display_config))?
         .with_resource(GameState::default())
+        .register::<OverworldCompat>()
+        .register::<InstanceCompat>()
         .build(game_data)?;
     game.run();
     Ok(())
